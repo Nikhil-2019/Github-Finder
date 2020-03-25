@@ -4,6 +4,9 @@ import GithubContext from './githubContext';
 import GithubReducer from './githubReducer';
 import { SEARCH_USERS, SET_LOADING, CLEAR_USERS, GET_USER, GET_REPOS } from '../types';
 
+//Here the state is set
+
+//This is the initial state
 const GithubState = (props) => {
 	const initialState = {
 		users: [],
@@ -12,14 +15,26 @@ const GithubState = (props) => {
 		loading: false
 	};
 
+	let githubClientId;
+	let githubClientSecret;
+
+	if (process.env.NODE_ENV !== 'production') {
+		githubClientId = process.env.REACT_APP_GITHUB_CLIENT_ID;
+		githubClientSecret = process.env.REACT_APP_GITHUB_CLIENT_SECRET;
+	} else {
+		githubClientId = process.env.GITHUB_CLIENT_ID;
+		githubClientSecret = process.env.GITHUB_CLIENT_SECRET;
+	}
+
 	const [ state, dispatch ] = useReducer(GithubReducer, initialState);
+
+	//All the calls of the app are made here to the api and are dispatched
 
 	//Search  Users
 	const searchUsers = async (text) => {
 		setLoading();
 		const res = await axios.get(
-			`https://api.github.com/search/users?q=${text}&client_id=${process.env
-				.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+			`https://api.github.com/search/users?q=${text}&client_id=${githubClientId}&client_secret=${githubClientSecret}`
 		);
 
 		dispatch({
@@ -32,8 +47,7 @@ const GithubState = (props) => {
 	const getUser = async (username) => {
 		setLoading();
 		const res = await axios.get(
-			`https://api.github.com/users/${username}?client_id=${process.env
-				.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+			`https://api.github.com/users/${username}?client_id=${githubClientId}&client_secret=${githubClientSecret}`
 		);
 
 		dispatch({
@@ -47,8 +61,7 @@ const GithubState = (props) => {
 	const getUserRepos = async (username) => {
 		setLoading();
 		const res = await axios.get(
-			`https://api.github.com/users/${username}/repos?per_page=5&sort=asc?client_id=${process.env
-				.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+			`https://api.github.com/users/${username}/repos?per_page=5&sort=asc?client_id=${githubClientSecret}&client_secret=${githubClientSecret}`
 		);
 		dispatch({
 			type: GET_REPOS,
@@ -60,6 +73,8 @@ const GithubState = (props) => {
 
 	//Set Loading
 	const setLoading = () => dispatch({ type: SET_LOADING });
+
+	//Returning all the available state and functions from the store in the Provider
 
 	return (
 		<GithubContext.Provider
